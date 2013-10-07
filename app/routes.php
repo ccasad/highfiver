@@ -11,5 +11,5 @@
 |
 */
 
+Route::resource('/', 'PlayersController');
 Route::resource('players', 'PlayersController');
-
