@@ -16,7 +16,7 @@
         	<tbody>
         		@foreach ($players as $player)
  							<tr>
- 								<td><a href="/highfiver/public/players/{{ $player->id }}">{{ $player->name }}</a></td>
+ 								<td><a href="{{ $baseurl }}players/{{ $player->id }}">{{ $player->name }}</a></td>
  							</tr>
 						@endforeach
         	</tbody>

@@ -19,7 +19,7 @@
         </div>
 
         <div class="pull-right">
-            <p><a href="/highfiver/public/players">Back to Top 5</a></p>
+            <p><a href="{{ $baseurl }}players">Back to Top 5</a></p>
         </div>
 
         <table class="table table-striped table-bordered">

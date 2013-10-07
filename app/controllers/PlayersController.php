@@ -6,8 +6,9 @@ class PlayersController extends \BaseController {
    * The layout that should be used for responses.
    */
   protected $layout = 'layouts.master';
-
 	private $playerRepository;
+	private $baseUrl = '/highfiver/';
+
 
 	/**
 	 * Constructor.
@@ -16,6 +17,11 @@ class PlayersController extends \BaseController {
 	public function __construct(PlayerRepository $repository)
 	{
 		$this->playerRepository = $repository;
+
+		if (stristr($_SERVER['HTTP_HOST'], 'localhost'))
+		{
+			$this->baseUrl = '/highfiver/public/';
+		}
 	}
 
 	/**
@@ -30,7 +36,8 @@ class PlayersController extends \BaseController {
 		//return print_r($players, true);
 
 		$this->layout->content = View::make('players')
-															->with('players', $players);
+															->with('players', $players)
+															->with('baseurl', $this->baseUrl);
 	}
 
 	/**
@@ -66,7 +73,8 @@ class PlayersController extends \BaseController {
 		//return print_r($player, true);
 
 		$this->layout->content = View::make('player')
-															->with('player', $player);;
+															->with('player', $player)
+															->with('baseurl', $this->baseUrl);
 	}
 
 	/**
