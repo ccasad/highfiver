@@ -12,3 +12,4 @@
 */
 
 Route::resource('players', 'PlayersController');
+

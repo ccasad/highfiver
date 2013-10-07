@@ -33,8 +33,6 @@ class PlayersController extends \BaseController {
 	{
 		$players = $this->playerRepository->getTopPlayers();
 
-		//return print_r($players, true);
-
 		$this->layout->content = View::make('players')
 															->with('players', $players)
 															->with('baseurl', $this->baseUrl);
@@ -69,8 +67,6 @@ class PlayersController extends \BaseController {
 	public function show($id)
 	{
 		$player = $this->playerRepository->getPlayer($id);
-
-		//return print_r($player, true);
 
 		$this->layout->content = View::make('player')
 															->with('player', $player)

@@ -3,14 +3,14 @@
 
 @section('title')
 @parent
-:: Top Players
+:: Top Players (Indiana 2012-2013)
 @stop
 
 @section('content')
-    <div class="container">
-        <p> {{-- print_r($players) --}} </p>
+    <div class="content">
 
         <h1>Top 5 Players</h1>
+        <h4><em>Indiana 2012-2013</em></h4>
 
         <table class="table table-striped table-bordered">
         	<tbody>
@@ -21,6 +21,8 @@
 						@endforeach
         	</tbody>
 				</table>
+
+				{{ Form::open(array('action' => 'PlayersController@index')) }}
 
     </div>
 @stop

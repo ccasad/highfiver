@@ -8,11 +8,10 @@
 
 @section('content')
     <div class="content">
-        <!-- {{ print_r($player) }} -->
 
         <div>
-            <div class="pull-left" style="width:110px; height:95px; overflow:hidden; border:1px solid #DADADA; margin-right:20px;">
-                <img src="{{ $player->image }}" style="width:150px; height:auto; margin:0 0 0 -20px;"/>
+            <div class="player-image-container pull-left">
+                <img src="{{ $player->image }}" class="player-image" />
             </div>
             <h1>{{ $player->name }}</h1>
             <h4><em>{{ $player->school }}</em></h4>
@@ -24,8 +23,8 @@
 
         <table class="table table-striped table-bordered">
         	<thead>
-        		<tr style="background-color:#f2af43;">
-                    <th></th>
+        		<tr class="player-stats-header">
+                    <th>2012-2013</th>
         			<th>Opponent</th>
                     <th>Player Score</th>
                     <th>Team Score</th>
@@ -35,7 +34,7 @@
         	<tbody>
         		@foreach ($player->stats as $stat)
 					<tr>
-                        <td>Game #{{ $stat->gameNumber }}</td>
+                        <td>Game #{{ $stat->gameNumber }}<br/>{{ $stat->gameDate }}</td>
 						<td>{{ $stat->opponent }}</td>
                         <td>{{ $stat->playerScore }}</td>
                         <td>{{ $stat->teamScore }}</td>
@@ -45,7 +44,7 @@
         	</tbody>
 		</table>
 
-        <div id="scoringchart" style="width:100%; height:400px; border:1px solid #DADADA; margin-bottom:25px;"></div>
+        <div id="scoringchart"></div>
 
     </div>
 
