@@ -2,6 +2,11 @@
 
 class PlayersController extends \BaseController {
 
+	/**
+   * The layout that should be used for responses.
+   */
+  protected $layout = 'layouts.master';
+
 	private $playerRepository;
 
 	/**
@@ -22,9 +27,10 @@ class PlayersController extends \BaseController {
 	{
 		$players = $this->playerRepository->getTopPlayers();
 
-		return print_r($players, true);
+		//return print_r($players, true);
 
-		//return View::make('players', array('players', $players));
+		$this->layout->content = View::make('players')
+															->with('players', $players);
 	}
 
 	/**
@@ -59,7 +65,8 @@ class PlayersController extends \BaseController {
 
 		//return print_r($player, true);
 
-		return View::make('player', array('player', $player));
+		$this->layout->content = View::make('player')
+															->with('player', $player);;
 	}
 
 	/**

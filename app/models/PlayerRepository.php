@@ -34,7 +34,7 @@ class PlayerRepository
 		
 					$playerImageNode = $xpath->query('.//div[@class=\'profile-image\']/a/img/@src', $profileNode->item(0));
 					if ($playerImageNode->item(0)) {
-						$player->imageUrl = $playerImageNode->item(0)->nodeValue;
+						$player->image = $this->baseUrl . $playerImageNode->item(0)->nodeValue;
 					}
 			
 					$playerSchoolNode = $xpath->query('.//div[@class=\'detail school\']/a', $profileNode->item(0));
@@ -65,7 +65,11 @@ class PlayerRepository
 												$stats->gameDate = $anchors->item(0)->nodeValue;
 											}
 										}
-						
+										
+										if ($cells->item(1)) {
+											$stats->opponent = $cells->item(1)->nodeValue;
+										}
+
 										if ($cells->item(2)) {
 											$anchors = $xpath->query('.//a', $cells->item(2));
 											if ($anchors->item(0)) {
@@ -87,6 +91,8 @@ class PlayerRepository
 										$stats->playerScore = $cells->item(3)->nodeValue;
 									}
 					
+									$stats->gameNumber = $i - 1;
+
 									$totalStats[] = $stats;
 
 								}
@@ -114,7 +120,7 @@ class PlayerRepository
 	/*
 	The purpose of this method is to get all the top players
 	*/
-	public function getTopPlayers($year='2013')
+	public function getTopPlayers($numberReturned=5, $year='2013')
 	{
 		// TEST CASE should be for 2013 and 2014 since one brings back data and the other doesn't
 		$url = $this->baseUrl . 'team/individual_leaderboard/54/27//school-year:' . $year . '/flag:1/activeTable:7ddcf6228db4ee2edfe138c2b283968d#7ddcf6228db4ee2edfe138c2b283968d';
@@ -138,10 +144,11 @@ class PlayerRepository
 
 				if ($rows) {
 					if ($rows->length > 3) {
+						$counter = 0;
 						// need to start at index 2 because the first two rows are header infor
 						for ($i = 2; $i < $rows->length; $i++) {
 							$player = new Player();
-							
+
 							if ($rows->item($i)) {
 								$cells = $xpath->query('.//td', $rows->item($i));
 			
@@ -168,6 +175,12 @@ class PlayerRepository
 								}
 								
 								$players[] = $player;
+								$counter++;
+
+								if ($counter >= $numberReturned) 
+								{
+									break;
+								}
 							}
 						}
 					} else {
