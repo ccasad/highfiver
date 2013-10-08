@@ -13,127 +13,148 @@ class PlayerRepository
 		$player = new Player();
 
 		$url = $this->baseUrl . 'team/player/27/' . $id;
-		
-		$html = Utilities::getPageContents($url);
-
-		$htmlDoc = new DomDocument();
-		libxml_use_internal_errors(true);
-		$htmlDoc->loadHTML($html);
-		
-		if ($htmlDoc) 
+	
+		try 
 		{
-			$xpath = new DOMXPath($htmlDoc);
-		
-			if ($xpath) 
+			// pull the contents from the varvee site
+			$html = Utilities::getPageContents($url);
+
+			// load up the DOM
+			$htmlDoc = new DomDocument();
+			libxml_use_internal_errors(true);
+			$htmlDoc->loadHTML($html);
+			
+			if ($htmlDoc) 
 			{
-				$profileNode = $xpath->query('.//div[@class=\'profile-wrapper\']');
-
-				if ($profileNode->item(0)) 
+				$xpath = new DOMXPath($htmlDoc);
+			
+				if ($xpath) 
 				{
-					$playerNameNode = $xpath->query('.//div[@class=\'profile-name\']', $profileNode->item(0));
-					if ($playerNameNode->item(0)) 
-					{
-						$player->name = $playerNameNode->item(0)->nodeValue;
-					}
-		
-					$playerImageNode = $xpath->query('.//div[@class=\'profile-image\']/a/img/@src', $profileNode->item(0));
-					if ($playerImageNode->item(0)) 
-					{
-						$player->image = $this->baseUrl . $playerImageNode->item(0)->nodeValue;
-					}
-			
-					$playerSchoolNode = $xpath->query('.//div[@class=\'detail school\']/a', $profileNode->item(0));
-					if ($playerSchoolNode->item(0)) 
-					{
-						$player->school = $playerSchoolNode->item(0)->nodeValue;
-					}
-			
-					$tables = $htmlDoc->getElementsByTagName('table');
+					// extract the div for the player profile 
+					$profileNode = $xpath->query('.//div[@class=\'profile-wrapper\']');
 
-					$totalStats = array();
-			
-					if ($tables->item(0) && $tables->length == 1) 
+					if ($profileNode->item(0)) 
 					{
-			
-						$rows = $xpath->query('.//tbody/tr', $tables->item(0));
-
-						if ($rows) 
+						// extract the div for the player name and set the name to the player object name prop
+						$playerNameNode = $xpath->query('.//div[@class=\'profile-name\']', $profileNode->item(0));
+						if ($playerNameNode->item(0)) 
 						{
-							if ($rows->length > 3) 
-							{
-								// need to start at index 2 because the first two rows are header info
-								for ($i = 2; $i < $rows->length; $i++) 
-								{
-									$stats = new PlayerStats();
-					
-									if ($rows->item($i)) 
-									{
-										$cells = $xpath->query('.//td', $rows->item($i));
+							$player->name = $playerNameNode->item(0)->nodeValue;
+						}
 			
-										if ($cells->item(0)) 
-										{
-											$anchors = $xpath->query('.//a', $cells->item(0));
-											if ($anchors->item(0)) 
-											{
-												$stats->gameDate = $anchors->item(0)->nodeValue;
-											}
-										}
-										
-										if ($cells->item(1)) 
-										{
-											$stats->opponent = $cells->item(1)->nodeValue;
-										}
+						// extract the div for the player image and set the image src to the player object image prop
+						$playerImageNode = $xpath->query('.//div[@class=\'profile-image\']/a/img/@src', $profileNode->item(0));
+						if ($playerImageNode->item(0)) 
+						{
+							$player->image = $this->baseUrl . $playerImageNode->item(0)->nodeValue;
+						}
+				
+						// extract the div for the player school and set the name to the player object name prop
+						$playerSchoolNode = $xpath->query('.//div[@class=\'detail school\']/a', $profileNode->item(0));
+						if ($playerSchoolNode->item(0)) 
+						{
+							$player->school = $playerSchoolNode->item(0)->nodeValue;
+						}
+				
+						// extract the table for the player stats
+						$tables = $htmlDoc->getElementsByTagName('table');
 
-										if ($cells->item(2)) 
+						$totalStats = array();
+				
+						if ($tables->item(0) && $tables->length == 1) 
+						{
+				
+							// extract all the rows of the table
+							$rows = $xpath->query('.//tbody/tr', $tables->item(0));
+
+							if ($rows) 
+							{
+								if ($rows->length > 3) 
+								{
+									// need to start at index 2 because the first two rows are header info
+									for ($i = 2; $i < $rows->length; $i++) 
+									{
+										$stats = new PlayerStats();
+						
+										if ($rows->item($i)) 
 										{
-											$anchors = $xpath->query('.//a', $cells->item(2));
-											if ($anchors->item(0)) 
+											// extract all the cells for the current row
+											$cells = $xpath->query('.//td', $rows->item($i));
+				
+											// extract the game date and set the player stats object gameDate prop
+											if ($cells->item(0)) 
 											{
-												$gameResults = $anchors->item(0)->nodeValue;
-												if ($gameResults && strlen($gameResults)) 
+												$anchors = $xpath->query('.//a', $cells->item(0));
+												if ($anchors->item(0)) 
 												{
-													$gameResultsParts = explode('-', $gameResults);
-													if ($gameResultsParts && count($gameResultsParts) == 2) 
+													$stats->gameDate = $anchors->item(0)->nodeValue;
+												}
+											}
+											
+											// extract the game opponent and set the player stats object opponent prop
+											if ($cells->item(1)) 
+											{
+												$stats->opponent = $cells->item(1)->nodeValue;
+											}
+
+											// extract the game score and set the player stats object prop for teamWinLoss and teamScore
+											if ($cells->item(2)) 
+											{
+												$anchors = $xpath->query('.//a', $cells->item(2));
+												if ($anchors->item(0)) 
+												{
+													$gameResults = $anchors->item(0)->nodeValue;
+													if ($gameResults && strlen($gameResults)) 
 													{
-														$stats->teamWinLoss = substr($gameResultsParts[0], 0, 1);
-														$score1 = substr($gameResultsParts[0], 1);
-														$score2 = $gameResultsParts[1];
-														$stats->teamScore = ($stats->teamWinLoss == 'W') ? $score1 : $score2;
+														$gameResultsParts = explode('-', $gameResults);
+														if ($gameResultsParts && count($gameResultsParts) == 2) 
+														{
+															$stats->teamWinLoss = substr($gameResultsParts[0], 0, 1);
+															$score1 = substr($gameResultsParts[0], 1);
+															$score2 = $gameResultsParts[1];
+															$stats->teamScore = ($stats->teamWinLoss == 'W') ? $score1 : $score2;
+														}
 													}
 												}
 											}
+
+											// extract the player score and set the player stats object playerScore prop
+											if ($cells->item(3)) 
+											{
+												$stats->playerScore = $cells->item(3)->nodeValue;
+											}
 										}
-									}
 						
-									if ($cells->item(3)) 
-									{
-										$stats->playerScore = $cells->item(3)->nodeValue;
+										$stats->gameNumber = $i - 1;
+
+										$totalStats[] = $stats;
+
 									}
-					
-									$stats->gameNumber = $i - 1;
-
-									$totalStats[] = $stats;
-
 								}
 							}
+				
+						} 
+						else 
+						{
+							// the varvee page must have changed no longer just one table therefore set the $player object to null
+							$player = null;
 						}
-			
+				
+						$player->stats = $totalStats;
+				
 					} 
 					else 
 					{
-						// TEST CASE ... should be only 1 table
-						die('we are expecting one table but are not getting that');
+						// the varvee page must have changed no longer can find profile wrapper therefore set the $player object to null
+						$player = null;
 					}
-			
-					$player->stats = $totalStats;
-			
-				} 
-				else 
-				{
-					// TEST CASE - profile wrapper should exist
-					die('cant find the profile wrapper');
 				}
 			}
+		}
+		catch(Exception $e)
+		{
+			// need to log the exception and set the player object to null
+			$player = null;
 		}
 
 		return $player;
@@ -145,96 +166,112 @@ class PlayerRepository
 	*/
 	public function getTopPlayers($numberReturned=5, $year='2013')
 	{
+		$players = array();
+
 		// TEST CASE should be for 2013 and 2014 since one brings back data and the other doesn't
 		$url = $this->baseUrl . 'team/individual_leaderboard/54/27//school-year:' . $year . '/flag:1/activeTable:7ddcf6228db4ee2edfe138c2b283968d#7ddcf6228db4ee2edfe138c2b283968d';
 
-		$html = Utilities::getPageContents($url);
-
-		$htmlDoc = new DomDocument();
-		libxml_use_internal_errors(true);
-		$htmlDoc->loadHTML($html);
-		
-		if ($htmlDoc) 
+		try
 		{
-			$xpath = new DOMXPath($htmlDoc);
 
-			$tables = $htmlDoc->getElementsByTagName('table');
+			// pull the contents from the varvee site
+			$html = Utilities::getPageContents($url);
 
-			$players = array();
-		
-			if ($tables->item(0) && $tables->length == 1) 
-			{
-		
-				$rows = $xpath->query('.//tbody/tr', $tables->item(0));
-
-				if ($rows) 
-				{
-					if ($rows->length > 3) 
-					{
-						$counter = 0;
-						// need to start at index 2 because the first two rows are header infor
-						for ($i = 2; $i < $rows->length; $i++) 
-						{
-							$player = new Player();
-
-							if ($rows->item($i)) 
-							{
-								$cells = $xpath->query('.//td', $rows->item($i));
+			// load up the DOM
+			$htmlDoc = new DomDocument();
+			libxml_use_internal_errors(true);
+			$htmlDoc->loadHTML($html);
 			
-								if ($cells->item(3)) 
+			if ($htmlDoc) 
+			{
+				$xpath = new DOMXPath($htmlDoc);
+
+				// extract the table with all the players
+				$tables = $htmlDoc->getElementsByTagName('table');
+			
+				if ($tables->item(0) && $tables->length == 1) 
+				{
+					// extract all the table rows
+					$rows = $xpath->query('.//tbody/tr', $tables->item(0));
+
+					if ($rows) 
+					{
+						if ($rows->length > 3) 
+						{
+							$counter = 0;
+							// need to start at index 2 because the first two rows are header infor
+							for ($i = 2; $i < $rows->length; $i++) 
+							{
+								$player = new Player();
+
+								if ($rows->item($i)) 
 								{
-									$anchors = $xpath->query('.//a', $cells->item(3));
-									if ($anchors->item(0)) 
+									// extract all the cells for the current row
+									$cells = $xpath->query('.//td', $rows->item($i));
+				
+									// extract the player name and id and set the player object name and id prop
+									if ($cells->item(3)) 
 									{
-										$player->name = $anchors->item(0)->nodeValue;
-										$href = $anchors->item(0)->getAttribute('href');
-										if ($href && strlen($href)) 
+										$anchors = $xpath->query('.//a', $cells->item(3));
+										if ($anchors->item(0)) 
 										{
-											$hrefParts = explode('/', $href);
-											if ($hrefParts && count($hrefParts) == 5) 
+											$player->name = $anchors->item(0)->nodeValue;
+											$href = $anchors->item(0)->getAttribute('href');
+											if ($href && strlen($href)) 
 											{
-												$player->id = $hrefParts[4];
+												$hrefParts = explode('/', $href);
+												if ($hrefParts && count($hrefParts) == 5) 
+												{
+													$player->id = $hrefParts[4];
+												}
 											}
 										}
 									}
-								}
-								
-								if ($cells->item(6)) 
-								{
-									$player->totalPoints = $cells->item(6)->nodeValue;
-								}
-								
-								if ($cells->item(7)) 
-								{
-									$player->pointsPerGame = $cells->item(7)->nodeValue;
-								}
-								
-								$players[] = $player;
-								$counter++;
+									
+									// extract the totalPoints and set the player object prop
+									if ($cells->item(6)) 
+									{
+										$player->totalPoints = $cells->item(6)->nodeValue;
+									}
+									
+									// extract the pointsPerGame and set the player object prop
+									if ($cells->item(7)) 
+									{
+										$player->pointsPerGame = $cells->item(7)->nodeValue;
+									}
+									
+									$players[] = $player;
+									$counter++;
 
-								if ($counter >= $numberReturned) 
-								{
-									break;
+									if ($counter >= $numberReturned) 
+									{
+										break;
+									}
 								}
 							}
-						}
-					} 
-					else 
-					{
-						if (stristr($rows->item(2)->nodeValue, 'No results found')) 
+						} 
+						else 
 						{
-							print 'NO DATA FOUND';
+							if (stristr($rows->item(2)->nodeValue, 'No results found')) 
+							{
+								// 'NO DATA FOUND' so a blank array will be sent
+							}
 						}
 					}
+				} 
+				else 
+				{
+					// the varvee page must have changed no longer just one table therefore set the $players object to null
+					$players = null;
 				}
-			} 
-			else 
-			{
-				// TEST CASE ... should be only 1 table
-				die('we are expecting one table but are not getting that');
 			}
 		}
-		
+		catch (Exception $e)
+		{
+			// need to log the exception and set the players object to null
+			$players = null;
+		}
+
 		return $players;
 	}
 

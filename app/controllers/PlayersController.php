@@ -31,8 +31,10 @@ class PlayersController extends \BaseController {
 	 */
 	public function index()
 	{
+		// get the top 5 players array to be displayed in the view
 		$players = $this->playerRepository->getTopPlayers();
 
+		// route to players.blade.php template view and pass it the players array and baseurl
 		$this->layout->content = View::make('players')
 															->with('players', $players)
 															->with('baseurl', $this->baseUrl);
@@ -66,8 +68,10 @@ class PlayersController extends \BaseController {
 	 */
 	public function show($id)
 	{
+		// get the player object as requested by the player id passed into the method
 		$player = $this->playerRepository->getPlayer($id);
 
+		// route to player.blade.php template view and pass it the player object and baseurl
 		$this->layout->content = View::make('player')
 															->with('player', $player)
 															->with('baseurl', $this->baseUrl);

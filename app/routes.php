@@ -11,5 +11,5 @@
 |
 */
 
-Route::resource('/', 'PlayersController');
+Route::get('/', 'HomeController@showWelcome');
 Route::resource('players', 'PlayersController');
