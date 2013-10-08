@@ -10,7 +10,7 @@
     <div class="content">
 
         <div class="pull-right">
-            <p><a href="{{ $baseurl }}players">Back to Top 5</a> | <a href="{{ $baseurl }}">Home</a></p>
+            <p><a href="{{ $baseurl }}players?year={{ $year }}">Back to Top 5</a> | <a href="{{ $baseurl }}">Home</a></p>
         </div>
 
         @if ($player)
@@ -22,7 +22,7 @@
                 <h4><em>{{ $player->school }}</em></h4>
             </div>
 
-            <table class="table table-striped table-bordered hf-table">
+            <table id="playerstats" class="table table-striped table-bordered hf-table">
                 <thead>
                     <tr class="player-stats-header">
                         <th>2012-2013</th>

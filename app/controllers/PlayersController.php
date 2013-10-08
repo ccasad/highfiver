@@ -18,7 +18,7 @@ class PlayersController extends \BaseController {
 	{
 		$this->playerRepository = $repository;
 
-		if (stristr($_SERVER['HTTP_HOST'], 'localhost'))
+		if (stristr(Request::url(), 'localhost'))
 		{
 			$this->baseUrl = '/highfiver/public/';
 		}
@@ -31,12 +31,22 @@ class PlayersController extends \BaseController {
 	 */
 	public function index()
 	{
+
+		// set the default year so we see some initial data
+		$year = '2013';
+		if (strlen(Input::get('year'))) 
+		{
+			$year = Input::get('year');
+		}
+
 		// get the top 5 players array to be displayed in the view
-		$players = $this->playerRepository->getTopPlayers();
+		$container = $this->playerRepository->getTopPlayers(5, $year);
 
 		// route to players.blade.php template view and pass it the players array and baseurl
 		$this->layout->content = View::make('players')
-															->with('players', $players)
+															->with('players', $container['players'])
+															->with('years', $container['years'])
+															->with('year', $year)
 															->with('baseurl', $this->baseUrl);
 	}
 
@@ -74,6 +84,7 @@ class PlayersController extends \BaseController {
 		// route to player.blade.php template view and pass it the player object and baseurl
 		$this->layout->content = View::make('player')
 															->with('player', $player)
+															->with('year', Input::get('year'))
 															->with('baseurl', $this->baseUrl);
 	}
 

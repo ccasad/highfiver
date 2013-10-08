@@ -12,11 +12,10 @@ class HomeController extends BaseController {
 	 * Constructor.
 	 *
 	 */
-	public function __construct(PlayerRepository $repository)
+	public function __construct()
 	{
-		$this->playerRepository = $repository;
 
-		if (stristr($_SERVER['HTTP_HOST'], 'localhost'))
+		if (stristr(Request::url(), 'localhost'))
 		{
 			$this->baseUrl = '/highfiver/public/';
 		}

@@ -91,6 +91,11 @@ body {
 /* all highfiver tables */
 .hf-table, .alert
 {
+	margin-top: 25px;
+}
+
+#playerstats
+{
 	margin-top: 45px;
 }
 

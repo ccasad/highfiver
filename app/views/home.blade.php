@@ -26,7 +26,8 @@
           <p>
             There were two required deliverables for this programming challenge. The first 
             is the <a href="{{ $baseurl }}players">High Fiver</a> app, which you can get to by clicking on the green button above. The 
-            app was built in PHP using the Laravel MVC Framework.
+            app was built in PHP using the Laravel MVC Framework. Unfortunately I was not able to get my php unit tests to work
+            so I am missing that part of the non-functional requirements.
           </p>
           <p>
             The second requirement is a description of my strategy for system testing, which is below in the next section.
@@ -36,7 +37,14 @@
           </p>
 
           <h4>Strategy for System Testing</h4>
-          <p>Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Cras mattis consectetur purus sit amet fermentum.</p>
+          <p>
+            My system testing strategy would be to use Selenium IDE, the Firefox plugin, to help determine
+            if the Varvee pages I'm scraping content from have changed. If they've changed that means my code
+            to build the High Fiver app pages won't ever return results. Using Selenium's verify and assert 
+            commands I would capture various parts of the page such as making sure the table exists
+            listing all the top players. Similarly, I would capture parts of the player profile page as well
+            to verify the players name exists, as well as the players stats table. 
+          </p>
 
           <p><hr/></p>
           

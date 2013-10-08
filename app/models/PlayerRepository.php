@@ -166,9 +166,10 @@ class PlayerRepository
 	*/
 	public function getTopPlayers($numberReturned=5, $year='2013')
 	{
+		$container = array();
 		$players = array();
+		$years = array();
 
-		// TEST CASE should be for 2013 and 2014 since one brings back data and the other doesn't
 		$url = $this->baseUrl . 'team/individual_leaderboard/54/27//school-year:' . $year . '/flag:1/activeTable:7ddcf6228db4ee2edfe138c2b283968d#7ddcf6228db4ee2edfe138c2b283968d';
 
 		try
@@ -185,6 +186,14 @@ class PlayerRepository
 			if ($htmlDoc) 
 			{
 				$xpath = new DOMXPath($htmlDoc);
+
+				// extract the school years from drop down
+				$yearDropdown = $htmlDoc->getElementById('school-year');
+				$yearDropdownOptions = $xpath->query('.//option', $yearDropdown);
+				foreach ($yearDropdownOptions as $option)
+				{
+					$years[$option->getAttribute('value')] = $option->nodeValue;
+				}
 
 				// extract the table with all the players
 				$tables = $htmlDoc->getElementsByTagName('table');
@@ -272,7 +281,10 @@ class PlayerRepository
 			$players = null;
 		}
 
-		return $players;
+		$container['years'] = $years;
+		$container['players'] = $players;
+
+		return $container;
 	}
 
 }
